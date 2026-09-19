@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b1f4b" />
+  <title>V.A.V. Velu Billing</title>
+  <style>
+    :root {
+      --navy: #1b1f4b;
+      --navy-2: #2a3170;
+      --red: #b42318;
+      --gold: #c9a227;
+      --gold-2: #ead48a;
+      --paper: #fffaf2;
+      --ink: #1c1630;
+      --muted: #5c5670;
+      --line: #e6dcc8;
+      --ok: #1f7a4d;
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(27, 31, 75, .12);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(180deg, #f4efe3 0%, #efe6d4 100%);
+      color: var(--ink);
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .app-header {
+      background: linear-gradient(135deg, var(--navy) 0%, #3a1d4a 70%, #7a1f1f 100%);
+      color: #fff;
+      padding: 14px 16px 12px;
+      position: sticky; top: 0; z-index: 20;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .brand-row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .brand h1 { margin: 0; font-size: 1.25rem; letter-spacing: .04em; color: var(--gold-2); }
+    .brand p { margin: 2px 0 0; font-size: .82rem; opacity: .9; }
+    .user-chip { font-size: .78rem; text-align: right; }
+    .nav {
+      display: flex; gap: 6px; overflow-x: auto; margin-top: 12px; padding-bottom: 2px;
+    }
+    .nav button {
+      border: 0; background: rgba(255,255,255,.1); color: #fff;
+      padding: 8px 12px; border-radius: 999px; white-space: nowrap;
+    }
+    .nav button.active { background: var(--gold); color: var(--navy); font-weight: 700; }
+    main { padding: 14px 14px 96px; max-width: 1100px; margin: 0 auto; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 14px;
+    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .field { flex: 1 1 160px; display: flex; flex-direction: column; gap: 4px; }
+    .field.grow { flex: 2 1 240px; }
+    label { font-size: .75rem; color: var(--muted); font-weight: 600; }
+    input, select, textarea {
+      border: 1px solid #d9d0bc; border-radius: 10px; padding: 9px 10px; background: #fff;
+    }
+    textarea { min-height: 64px; resize: vertical; }
+    .btn {
+      border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700;
+      background: var(--navy); color: #fff;
+    }
+    .btn.gold { background: var(--gold); color: var(--navy); }
+    .btn.red { background: var(--red); }
+    .btn.ghost { background: #efe8d8; color: var(--navy); }
+    .btn.ok { background: var(--ok); }
+    .btn.small { padding: 6px 10px; font-size: .82rem; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .search { width: 100%; margin-bottom: 10px; }
+    .cat {
+      border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; overflow: hidden;
+      background: #fff;
+    }
+    .cat-h {
+      width: 100%; text-align: left; background: #f7f1e4; border: 0;
+      padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;
+      font-weight: 700;
+    }
+    .cat-h span.tag { font-size: .7rem; background: var(--red); color: #fff; border-radius: 999px; padding: 2px 8px; font-weight: 600; }
+    .prod {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border-top: 1px solid var(--line);
+    }
+    .prod .info { flex: 1 1 160px; min-width: 0; }
+    .prod .sno {
+      flex: 0 0 3rem; min-width: 3rem; font-weight: 800; color: var(--navy); font-size: .85rem;
+      background: #f7f1e4; border-radius: 8px; padding: 6px 4px; text-align: center;
+    }
+    .prod .name { font-size: .92rem; }
+    .prod .meta { color: var(--muted); font-size: .75rem; }
+    .qty {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .qty button {
+      width: 32px; height: 32px; border: 0; border-radius: 8px; background: var(--navy); color: #fff; font-size: 1.1rem;
+    }
+    .qty input { width: 58px; text-align: center; padding: 6px; }
+    .amt { font-weight: 700; min-width: 72px; text-align: right; }
+    .totals {
+      position: sticky; bottom: 0; z-index: 15;
+      background: var(--navy); color: #fff; padding: 12px 14px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 16px;
+    }
+    @media (min-width: 720px) { .totals { grid-template-columns: repeat(4, 1fr) auto; align-items: center; } }
+    .totals strong { color: var(--gold-2); font-size: 1.15rem; }
+    .actions-bar { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 14px 20px; max-width: 1100px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { font-size: .75rem; color: var(--muted); }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover { background: #fbf6ea; }
+    .login {
+      min-height: 100vh; display: grid; place-items: center; padding: 20px;
+      background: radial-gradient(circle at top, #4a2158, var(--navy));
+    }
+    .login-card { width: min(420px, 100%); }
+    .login-card h1 { margin: 0 0 4px; color: var(--navy); }
+    .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .pin-grid button { padding: 16px; font-size: 1.2rem; border: 0; border-radius: 12px; background: #efe8d8; }
+    .pin-dots { font-size: 1.15rem; text-align: center; min-height: 1.6em; font-weight: 700; }
+    .pin-dots.masked { letter-spacing: 10px; font-size: 1.4rem; }
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+      background: var(--ok); color: #fff; padding: 10px 16px; border-radius: 999px;
+      z-index: 50; box-shadow: var(--shadow);
+    }
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(20,16,40,.55); z-index: 40;
+      display: grid; place-items: center; padding: 16px;
+    }
+    .modal {
+      background: #fff; width: min(860px, 100%); max-height: 90vh; overflow: auto;
+      border-radius: 16px; padding: 16px;
+    }
+    .badge { display: inline-block; background: #efe8d8; border-radius: 999px; padding: 2px 8px; font-size: .72rem; }
+    .invoice {
+      background: #fff; color: #111; padding: 18px; border: 2px solid var(--navy);
+    }
+    .invoice-head { display: flex; justify-content: space-between; gap: 12px; border-bottom: 3px solid var(--gold); padding-bottom: 10px; }
+    .invoice h2 { margin: 0; color: var(--navy); }
+    .invoice table { margin-top: 10px; }
+    .invoice th { background: var(--navy); color: #fff; }
+    .muted { color: var(--muted); }
+    .danger { color: var(--red); }
+    @media print {
+      body { background: #fff; }
+      .app-header, .nav, main, .totals, .actions-bar, .toast, .modal-bg, .login { display: none !important; }
+      #print-root { display: block !important; }
+      #print-root .invoice { border: 0; }
+    }
+    #print-root { display: none; }
+  </style>
+</head>
+<body>
+  <div id="login-screen" class="login">
+    <div class="card login-card">
+      <div class="brand">
+        <h1 id="login-title">V.A.V. VELU</h1>
+        <p id="login-sub">Crackers billing — this device only</p>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label>User</label>
+        <select id="login-user"></select>
+      </div>
+      <div id="login-pin-box">
+        <div class="pin-dots" id="pin-dots">PIN</div>
+        <div class="pin-grid" id="pin-pad"></div>
+        <button type="button" class="btn ghost hidden" id="btn-forgot" style="width:100%;margin-top:12px">Forgot admin PIN?</button>
+        <p class="muted hidden" id="admin-login-hint" style="font-size:.8rem;margin-top:12px">Default admin PIN is <b>1234</b> if you never changed it. Recovery code default is <b>VELU2026</b> (change it in Settings).</p>
+      </div>
+      <div id="login-recover-box" class="hidden">
+        <div class="field" style="margin-top:14px">
+          <label>Recovery code</label>
+          <input id="recover-code" autocomplete="off" />
+        </div>
+        <div class="field" style="margin-top:8px">
+          <label>New admin PIN (4+ digits)</label>
+          <input id="recover-pin" inputmode="numeric" type="password" />
+        </div>
+        <div class="toolbar">
+          <button type="button" class="btn gold" id="btn-recover">Reset admin PIN</button>
+          <button type="button" class="btn ghost" id="btn-recover-cancel">Back</button>
+        </div>
+        <p class="muted" style="font-size:.8rem">Bills and products are not deleted. Only the admin PIN is changed.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-screen" class="hidden">
+    <header class="app-header">
+      <div class="brand-row">
+        <div class="brand">
+          <h1 id="shop-name">V.A.V. VELU</h1>
+          <p id="shop-sub"></p>
+          <p id="shop-phones"></p>
+        </div>
+        <div class="user-chip">
+          <div id="who"></div>
+          <button class="btn small ghost" id="btn-logout" style="margin-top:6px">Logout</button>
+        </div>
+      </div>
+      <nav class="nav" id="nav"></nav>
+    </header>
+    <main id="view"></main>
+    <div id="bill-footer" class="hidden"></div>
+  </div>
+  <div id="print-root"></div>
+  <div id="toast" class="toast hidden"></div>
+  <div id="modal" class="modal-bg hidden"></div>
+
+  <script>
+  const STORE_KEY = "vav-billing-v1";
+  const uid = () => "id-" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+
+  const SEED_CATEGORIES = [
+    { name: "One Sound Crackers", noDiscount: false },
+    { name: "Two Sound Crackers", noDiscount: false },
+    { name: "Flower Pots", noDiscount: false },
+    { name: "Ground Chakkar", noDiscount: false },
+    { name: "Twinkling Stars & Pencils", noDiscount: false },
+    { name: "Rockets", noDiscount: false },
+    { name: "Bombs", noDiscount: false },
+    { name: "Bijili Crackers", noDiscount: false },
+    { name: "Fountain & Varieties", noDiscount: false },
+    { name: "Fancy Crackers", noDiscount: false },
+    { name: "Wow Collection", noDiscount: false },
+    { name: "Sparklers", noDiscount: false },
+    { name: "Colour Matches & Novelties", noDiscount: false },
+    { name: "Gift Boxes", noDiscount: true }
+  ];
+
+  const P = (sno, name, price, unit, cat) => ({ id: "p" + sno, sno, name, price, unit, category: cat });
+
+  const SEED_PRODUCTS = [
+    P(1,"3/4\" Deluxe Lakshmi / Jallika (5 Pcs)",80,"Pkt","One Sound Crackers"),
+    P(2,"2\" Kuruvi (5 Pcs)",110,"Pkt","One Sound Crackers"),
+    P(3,"3 1/2\" Lakshmi (5 Pcs)",190,"Pkt","One Sound Crackers"),
+    P(4,"4\" Lakshmi (5 Pcs)",250,"Pkt","One Sound Crackers"),
+    P(5,"4\" Deluxe Lakshmi (5 Pcs)",300,"Pkt","One Sound Crackers"),
+    P(6,"4\" Gold Lakshmi (5 Pcs)",430,"Pkt","One Sound Crackers"),
+    P(7,"5\" Deluxe Lakshmi (5 Pcs)",660,"Pkt","One Sound Crackers"),
+    P(8,"Two Sound Crackers (5 Pcs)",900,"Pkt","Two Sound Crackers"),
+    P(9,"Flower Pots Special (10 Pcs)",800,"Box","Flower Pots"),
+    P(10,"Flower Pots Ashoka (10 Pcs)",1200,"Box","Flower Pots"),
+    P(11,"Flower Pots Deluxe (5 Pcs)",2200,"Box","Flower Pots"),
+    P(12,"Flower Pots Colour Koti Dlx (10 Pcs)",1900,"Box","Flower Pots"),
+    P(13,"Ground Chakkar Big (25 Pcs)",800,"Box","Ground Chakkar"),
+    P(14,"Ground Chakkar Big (10 Pcs)",400,"Box","Ground Chakkar"),
+    P(15,"Ground Chakkar Special (10 Pcs)",800,"Box","Ground Chakkar"),
+    P(16,"Ground Chakkar Deluxe (10 Pcs)",1400,"Box","Ground Chakkar"),
+    P(17,"Ground Chakkar Disco Wheel (5 Pcs)",1200,"Box","Ground Chakkar"),
+    P(18,"Wire Chakkar (10 Pcs)",1600,"Box","Ground Chakkar"),
+    P(19,"Moon Wheel (10 Pcs)",2000,"Box","Ground Chakkar"),
+    P(20,"1/2\" Twinkling Star (10 Pcs)",250,"Box","Twinkling Stars & Pencils"),
+    P(21,"1\" Twinkling Star (10 Pcs)",350,"Box","Twinkling Stars & Pencils"),
+    P(22,"4\" Twinkling Star (10 Pcs)",700,"Box","Twinkling Stars & Pencils"),
+    P(23,"10\" Pencil (10 Pcs)",400,"Box","Twinkling Stars & Pencils"),
+    P(24,"12\" Pencil (10 Pcs)",530,"Box","Twinkling Stars & Pencils"),
+    P(25,"15\" Pencil (10 Pcs)",800,"Box","Twinkling Stars & Pencils"),
+    P(26,"18\" Pencil (10 Pcs)",900,"Box","Twinkling Stars & Pencils"),
+    P(27,"Rocket Bomb / Colour Rocket (10 Pcs)",700,"Box","Rockets"),
+    P(28,"Whistling Rocket (10 Pcs)",1800,"Box","Rockets"),
+    P(29,"Lunik Rocket (10 Pcs)",1400,"Box","Rockets"),
+    P(30,"2 Sound Rocket (10 Pcs)",1600,"Box","Rockets"),
+    P(31,"3 Sound Rocket (10 Pcs)",1800,"Box","Rockets"),
+    P(32,"Bullet Bomb / Super Bullet (10 Pcs)",300,"Box","Bombs"),
+    P(33,"Hydro Bomb (10 Pcs)",700,"Box","Bombs"),
+    P(34,"King Kong Bomb (10 Pcs)",900,"Box","Bombs"),
+    P(35,"Classic Bomb (10 Pcs)",1200,"Box","Bombs"),
+    P(36,"Dinosaur Bomb (10 Pcs)",2200,"Box","Bombs"),
+    P(37,"Digital Bomb (10 Pcs)",2500,"Box","Bombs"),
+    P(38,"1/4 Kg Paper Bomb (1 Pc)",450,"Box","Bombs"),
+    P(39,"1/2 Kg Paper Bomb (1 Pc)",900,"Box","Bombs"),
+    P(40,"1 Kg Paper Bomb (1 Pc)",1600,"Box","Bombs"),
+    P(41,"555 Bomb (10 Pcs)",1800,"Box","Bombs"),
+    P(42,"Red Bijili (100 Pcs)",330,"Box","Bijili Crackers"),
+    P(43,"Stripped Bijili (100 Pcs)",350,"Box","Bijili Crackers"),
+    P(44,"Butterfly (10 Pcs)",900,"Box","Fountain & Varieties"),
+    P(45,"Mega Siren (3 Pcs)",1800,"Box","Fountain & Varieties"),
+    P(46,"Shower (5 Pcs)",1200,"Box","Fountain & Varieties"),
+    P(47,"Tri Colour Fountain (5 Pcs)",2500,"Box","Fountain & Varieties"),
+    P(48,"Kit Kat / Chit Phut / TitTak (10 Pcs)",400,"Pkt","Fountain & Varieties"),
+    P(49,"Photo Flash (5 Pcs)",700,"Pkt","Fountain & Varieties"),
+    P(50,"Peacock (1 Pc)",1600,"Box","Fountain & Varieties"),
+    P(51,"Helicopter (5 Pcs)",1000,"Box","Fountain & Varieties"),
+    P(52,"Drone (5 Pcs)",1600,"Box","Fountain & Varieties"),
+    P(53,"Tin Beer (1 Pc)",1200,"Box","Fountain & Varieties"),
+    P(54,"Peacock Feather (5 Pcs)",1000,"Box","Fountain & Varieties"),
+    P(55,"Crorepati / Jackpot (2 Pcs)",2200,"Box","Fountain & Varieties"),
+    P(56,"Golden Rain (5 Pcs)",1000,"Box","Fountain & Varieties"),
+    P(57,"Rainbow Smoke (3 Pcs)",1500,"Box","Fountain & Varieties"),
+    P(58,"Bambaram (10 Pcs)",1200,"Box","Fountain & Varieties"),
+    P(59,"Black Money (5 Pcs)",2200,"Box","Fountain & Varieties"),
+    P(60,"Lollipop Stick (5 Pcs)",1700,"Box","Fountain & Varieties"),
+    P(61,"Pada Peacock (1 Pc)",4000,"Box","Fountain & Varieties"),
+    P(62,"90 Watts (3 Pcs)",1200,"Box","Fancy Crackers"),
+    P(63,"Chotta Fancy",400,"Box","Fancy Crackers"),
+    P(64,"2\" Pipe (5 Varieties) (1 Pc)",1200,"Box","Fancy Crackers"),
+    P(65,"2\" Pipe (3 Pcs)",2800,"Box","Fancy Crackers"),
+    P(66,"3\" Pipe (6 Varieties) (1 Pc)",2400,"Box","Fancy Crackers"),
+    P(67,"3 1/2\" Pipe (5 Varieties) (1 Pc)",3000,"Box","Fancy Crackers"),
+    P(68,"4\" Pipe (5 Varieties) (1 Pc)",3500,"Box","Fancy Crackers"),
+    P(69,"4\" Pipe (2 Pcs)",4000,"Box","Fancy Crackers"),
+    P(70,"4\" 7 Steps (1 Pc)",9000,"Box","Fancy Crackers"),
+    P(71,"4\" 12 Steps (1 Pc)",4300,"Box","Fancy Crackers"),
+    P(72,"4\" Pipe Niagara Falls Spl (1 Pc)",5300,"Box","Fancy Crackers"),
+    P(73,"5\" Pipe Orange (1 Pc)",5300,"Box","Fancy Crackers"),
+    P(74,"5\" Pipe Lemon (1 Pc)",5300,"Box","Fancy Crackers"),
+    P(75,"5\" Pipe Purple (1 Pc)",4800,"Box","Fancy Crackers"),
+    P(76,"5\" Pipe (2 Pcs)",10000,"Box","Fancy Crackers"),
+    P(77,"7 Shots Multicolour (5 Pcs)",1100,"Box","Fancy Crackers"),
+    P(78,"12 Shots Rider / Crackling",1400,"Box","Fancy Crackers"),
+    P(79,"25 Shots Rider / Crackling",2500,"Box","Fancy Crackers"),
+    P(80,"Cool Baby Cool (5 Pcs)",2000,"Box","Fancy Crackers"),
+    P(81,"30 Shots Multicolour",3500,"Box","Fancy Crackers"),
+    P(82,"60 Shots Multicolour",7000,"Box","Fancy Crackers"),
+    P(83,"120 Shots Multicolour",14000,"Box","Fancy Crackers"),
+    P(84,"Scarlet Saucer (5 Pcs) (Standard FW)",3550,"Box","Wow Collection"),
+    P(85,"Red & White Chakkars (10 Pcs) (Standard FW)",3550,"Box","Wow Collection"),
+    P(86,"Colour Burst (10 Pcs) (Standard FW)",1550,"Box","Wow Collection"),
+    P(87,"Whistling Dixie (5 Pcs) (Vadivel FW)",1550,"Box","Wow Collection"),
+    P(88,"Ring Ring (5 Pcs) (Vadivel FW)",880,"Box","Wow Collection"),
+    P(89,"Bad Boy (3 Pcs) (Vadivel FW)",2440,"Box","Wow Collection"),
+    P(90,"30 Shots Multicolour (Wow)",4000,"Box","Wow Collection"),
+    P(91,"60 Shots Multicolour (Wow)",8000,"Box","Wow Collection"),
+    P(92,"120 Shots Multicolour (Wow)",16000,"Box","Wow Collection"),
+    P(93,"240 Shots Multicolour (Wow)",32000,"Box","Wow Collection"),
+    P(94,"Money Penny (5 Pcs) (Standard FW)",2500,"Box","Wow Collection"),
+    P(95,"Sun Drops (5 Pcs) (Standard FW)",3200,"Box","Wow Collection"),
+    P(96,"Twin Spin (5 Pcs) (Standard FW)",3200,"Box","Wow Collection"),
+    P(97,"Autumn Rain (1 Pc) (Vadivel FW)",2200,"Box","Wow Collection"),
+    P(98,"Winter Rain (1 Pc) (Vadivel FW)",2500,"Box","Wow Collection"),
+    P(99,"Rangoon (2 Pcs) (Ajantha FW)",3350,"Box","Wow Collection"),
+    P(100,"Lemon Tree (1 Pc) (Ayyan FW)",1450,"Box","Wow Collection"),
+    P(101,"Cocktail (10 Pcs) (Ayyan FW)",650,"Box","Wow Collection"),
+    P(102,"Jadugar (5 Pcs) (Ayyan FW)",3350,"Box","Wow Collection"),
+    P(103,"ManoRajan (5 Pcs) (Ayyan FW)",3350,"Box","Wow Collection"),
+    P(104,"Dix Pots (5 Pcs)",2500,"Box","Wow Collection"),
+    P(105,"Scooby-Doo (5 Pcs) (Vadivel FW)",1750,"Box","Wow Collection"),
+    P(106,"Dexter (5 Pcs) (Vadivel FW)",1750,"Box","Wow Collection"),
+    P(107,"Popeye (5 Pcs) (Vadivel FW)",1750,"Box","Wow Collection"),
+    P(108,"Power Puff Girls (5 Pcs) (Vadivel FW)",1750,"Box","Wow Collection"),
+    P(109,"Recycle (5 Pcs) (Vadivel FW)",1750,"Box","Wow Collection"),
+    P(110,"Fire Egg (2 Pcs) (Vadivel FW)",1750,"Box","Wow Collection"),
+    P(111,"Magical Sword (2 Pcs) (Ajantha FW)",1450,"Box","Wow Collection"),
+    P(112,"Galaxy Sword (2 Pcs) (Ajantha FW)",1650,"Box","Wow Collection"),
+    P(113,"Mittco (2 Pcs) (Ajantha FW)",1650,"Box","Wow Collection"),
+    P(114,"Tropical Mushroom (1 Pc) (Ajantha FW)",1650,"Box","Wow Collection"),
+    P(115,"Smiling Elephant (1 Pc) (Ajantha FW)",1650,"Box","Wow Collection"),
+    P(116,"Lucky Lion (1 Pc) (Ajantha FW)",1650,"Box","Wow Collection"),
+    P(117,"Kit Kat Red (5 Pcs)",2555,"Box","Wow Collection"),
+    P(118,"Tic Tac Mint (5 Pcs)",2200,"Box","Wow Collection"),
+    P(119,"Milky Bar White (5 Pcs)",2200,"Box","Wow Collection"),
+    P(120,"5 Star Gold (5 Pcs)",2450,"Box","Wow Collection"),
+    P(121,"Dairy Milk (5 Pcs)",1700,"Box","Wow Collection"),
+    P(122,"Germs Colour Mix (5 Pcs)",1700,"Box","Wow Collection"),
+    P(123,"Karaoke Night (1 Pc)",1700,"Box","Wow Collection"),
+    P(124,"Jazz Music (1 Pc)",1700,"Box","Wow Collection"),
+    P(125,"Dr. Pepper (1 Pc)",1700,"Box","Wow Collection"),
+    P(126,"Big Bang (1 Pc)",1700,"Box","Wow Collection"),
+    P(127,"Red Apple (5 Pcs)",2555,"Box","Wow Collection"),
+    P(128,"Carnival Fun Fair (5 Pcs)",2200,"Box","Wow Collection"),
+    P(129,"Mr. Big (5 Pcs)",2200,"Box","Wow Collection"),
+    P(130,"Tooty Frooty (5 Pcs)",2450,"Box","Wow Collection"),
+    P(131,"Bingo Music (5 Pcs)",1700,"Box","Wow Collection"),
+    P(132,"Party Time (5 Pcs)",1700,"Box","Wow Collection"),
+    P(133,"Kulfi (3 Pcs)",1700,"Box","Wow Collection"),
+    P(134,"Hot Cone (2 Pcs)",1700,"Box","Wow Collection"),
+    P(135,"King Version (1 Pc)",1700,"Box","Wow Collection"),
+    P(136,"Cylinder Smoke (2 Pcs)",1700,"Box","Wow Collection"),
+    P(137,"7 Cm Electric Sparklers",90,"Box","Sparklers"),
+    P(138,"7 Cm Colour Sparklers",110,"Box","Sparklers"),
+    P(139,"7 Cm Green Sparklers",130,"Box","Sparklers"),
+    P(140,"10 Cm Electric Sparklers",180,"Box","Sparklers"),
+    P(141,"10 Cm Colour Sparklers",210,"Box","Sparklers"),
+    P(142,"10 Cm Green Sparklers",240,"Box","Sparklers"),
+    P(143,"12 Cm Electric Sparklers",270,"Box","Sparklers"),
+    P(144,"12 Cm Colour Sparklers",300,"Box","Sparklers"),
+    P(145,"12 Cm Green Sparklers",340,"Box","Sparklers"),
+    P(146,"15 Cm Electric Sparklers",430,"Box","Sparklers"),
+    P(147,"15 Cm Colour Sparklers",450,"Box","Sparklers"),
+    P(148,"15 Cm Green Sparklers",470,"Box","Sparklers"),
+    P(149,"30 Cm Electric Sparklers",430,"Box","Sparklers"),
+    P(150,"30 Cm Colour Sparklers",450,"Box","Sparklers"),
+    P(151,"30 Cm Green Sparklers",470,"Box","Sparklers"),
+    P(152,"50 Cm Electric Sparklers",1600,"Box","Sparklers"),
+    P(153,"50 Cm Colour Sparklers",1800,"Box","Sparklers"),
+    P(154,"Rotating Umbrella Sparklers",2000,"Box","Sparklers"),
+    P(155,"Colour Matches",330,"Box","Colour Matches & Novelties"),
+    P(156,"Colour Matches (Deluxe)",400,"Box","Colour Matches & Novelties"),
+    P(157,"Colour Matches 10 in 1 (Big)",450,"Box","Colour Matches & Novelties"),
+    P(158,"Hunter Gun (with Ring Caps)",530,"Box","Colour Matches & Novelties"),
+    P(159,"Snake Serpent (Big)",830,"Box","Colour Matches & Novelties"),
+    P(160,"Electric Stone / Magic Pops",100,"Box","Colour Matches & Novelties"),
+    P(161,"Cartoon (25 Pcs)",700,"Box","Colour Matches & Novelties"),
+    P(162,"Darling Pack 20 Items",1500,"Box","Gift Boxes"),
+    P(163,"Family Pack 25 Items",2000,"Box","Gift Boxes"),
+    P(164,"Golden Pack 30 Items",2500,"Box","Gift Boxes"),
+    P(165,"V.I.P Pack 35 Items",1500,"Box","Gift Boxes"),
+    P(166,"Premium Pack 42 Items",1000,"Box","Gift Boxes"),
+    P(167,"Diwali Special Pack 50 Items",1000,"Box","Gift Boxes")
+  ];
+
+  const defaultState = () => ({
+    settings: {
+      companyName: "V.A.V. VELU",
+      subtitle: "Crackers & Fireworks • Price List 2026",
+      phones: ["99521 08746", "99872 39649", "88798 16609", "90474 67300"],
+      address: "",
+      recoveryCode: "VELU2026"
+    },
+    categories: SEED_CATEGORIES.map(c => ({ ...c })),
+    products: SEED_PRODUCTS.map(p => ({ ...p })),
+    users: [{ id: "u-admin", name: "Admin", role: "admin", pin: "1234" }],
+    bills: [],
+    trash: [],
+    nextSerial: 1
+  });
+
+  let db = load();
+  let session = null;
+  let view = "bill";
+  let billDraft = emptyDraft();
+  let pinBuf = "";
+  let catOpen = {};
+  let historyStaffFilter = "all";
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      const state = { ...defaultState(), ...parsed, settings: { ...defaultState().settings, ...(parsed.settings || {}) } };
+      if (!state.settings.recoveryCode) state.settings.recoveryCode = "VELU2026";
+      return state;
+    } catch {
+      return defaultState();
+    }
+  }
+  function save() { localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+
+  function emptyDraft() {
+    const d = new Date();
+    const iso = d.toISOString().slice(0, 10);
+    return {
+      customerName: "", phone: "", address: "", date: iso, discountPct: 90,
+      qtys: {}, others: [], collapsed: {}
+    };
+  }
+
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.remove("hidden");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => el.classList.add("hidden"), 2600);
+  }
+
+  function money(n) {
+    return "₹" + (Number(n) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function catNoDisc(name) {
+    const c = db.categories.find(x => x.name === name);
+    return !!(c && c.noDiscount);
+  }
+  function productById(id) { return db.products.find(p => p.id === id); }
+
+  function draftItems() {
+    const items = [];
+    for (const p of db.products) {
+      const q = Number(billDraft.qtys[p.id] || 0);
+      if (q > 0) items.push({
+        productId: p.id, sno: p.sno, name: p.name, unit: p.unit, price: Number(p.price), qty: q,
+        category: p.category, noDiscount: catNoDisc(p.category), adHoc: false
+      });
+    }
+    billDraft.others.forEach((o, i) => {
+      const q = Number(o.qty || 0);
+      const price = Number(o.price || 0);
+      if (o.name && q > 0 && price >= 0) items.push({
+        productId: "other-" + i, sno: o.sno || "", name: o.name, unit: o.unit || "Nos", price, qty: q,
+        category: "Other Products", noDiscount: !!o.noDiscount, adHoc: true
+      });
+    });
+    return items;
+  }
+
+  function totalsFromItems(items, discountPct) {
+    const pct = Math.max(0, Number(discountPct) || 0);
+    let subtotal = 0, noDiscAmt = 0, discBase = 0;
+    for (const it of items) {
+      const line = it.price * it.qty;
+      subtotal += line;
+      if (it.noDiscount) noDiscAmt += line;
+      else discBase += line;
+    }
+    const discountAmt = discBase * pct / 100;
+    const payable = subtotal - discountAmt;
+    return { subtotal, noDiscAmt, discBase, discountAmt, payable, pct };
+  }
+
+  function currentTotals() { return totalsFromItems(draftItems(), billDraft.discountPct); }
+
+  async function hashLike(pin) { return pin; }
+
+  function renderLogin() {
+    document.getElementById("login-screen").classList.remove("hidden");
+    document.getElementById("app-screen").classList.add("hidden");
+    document.getElementById("login-title").textContent = db.settings.companyName;
+    document.getElementById("login-sub").textContent = db.settings.subtitle || "Staff login";
+    const sel = document.getElementById("login-user");
+    const ordered = [...db.users].sort((a, b) => (a.role === "staff" ? 0 : 1) - (b.role === "staff" ? 0 : 1) || a.name.localeCompare(b.name));
+    sel.innerHTML = ordered.map(u => `<option value="${u.id}">${esc(u.name)} (${u.role})</option>`).join("");
+    const firstStaff = ordered.find(u => u.role === "staff");
+    sel.value = firstStaff ? firstStaff.id : (ordered[0] && ordered[0].id);
+    sel.onchange = syncForgotPin;
+    pinBuf = "";
+    const dots = document.getElementById("pin-dots");
+    dots.classList.remove("masked");
+    dots.textContent = "Enter PIN";
+    const pad = document.getElementById("pin-pad");
+    pad.innerHTML = "";
+    [1,2,3,4,5,6,7,8,9,"C",0,"OK"].forEach(k => {
+      const b = document.createElement("button");
+      b.textContent = k;
+      b.onclick = () => onPin(k);
+      pad.appendChild(b);
+    });
+    document.getElementById("login-pin-box").classList.remove("hidden");
+    document.getElementById("login-recover-box").classList.add("hidden");
+    document.getElementById("btn-forgot").onclick = () => {
+      document.getElementById("login-pin-box").classList.add("hidden");
+      document.getElementById("login-recover-box").classList.remove("hidden");
+      document.getElementById("recover-code").value = "";
+      document.getElementById("recover-pin").value = "";
+    };
+    document.getElementById("btn-recover-cancel").onclick = () => renderLogin();
+    document.getElementById("btn-recover").onclick = resetAdminPin;
+    syncForgotPin();
+  }
+
+  function selectedLoginUser() {
+    return db.users.find(u => u.id === document.getElementById("login-user").value);
+  }
+
+  function syncForgotPin() {
+    const user = selectedLoginUser();
+    const isAdmin = !!(user && user.role === "admin");
+    document.getElementById("btn-forgot").classList.toggle("hidden", !isAdmin);
+    document.getElementById("admin-login-hint").classList.toggle("hidden", !isAdmin);
+    if (!isAdmin) {
+      document.getElementById("login-recover-box").classList.add("hidden");
+      document.getElementById("login-pin-box").classList.remove("hidden");
+    }
+  }
+
+  function resetAdminPin() {
+    const code = (document.getElementById("recover-code").value || "").trim();
+    const pin = (document.getElementById("recover-pin").value || "").trim();
+    const expected = String(db.settings.recoveryCode || "VELU2026");
+    if (code.toUpperCase() !== expected.toUpperCase()) return toast("Recovery code is incorrect");
+    if (pin.length < 4 || !/^\d+$/.test(pin)) return toast("New PIN must be at least 4 digits");
+    const admin = db.users.find(u => u.role === "admin") || db.users.find(u => u.id === "u-admin");
+    if (!admin) return toast("Admin account not found");
+    admin.pin = pin;
+    save();
+    toast("Admin PIN reset. Log in with the new PIN.");
+    renderLogin();
+    const sel = document.getElementById("login-user");
+    if (sel) { sel.value = admin.id; syncForgotPin(); }
+  }
+
+  function onPin(k) {
+    if (k === "C") pinBuf = "";
+    else if (k === "OK") return tryLogin();
+    else if (pinBuf.length < 8) pinBuf += String(k);
+    const dots = document.getElementById("pin-dots");
+    if (pinBuf) { dots.classList.add("masked"); dots.textContent = "•".repeat(pinBuf.length); }
+    else { dots.classList.remove("masked"); dots.textContent = "Enter PIN"; }
+  }
+
+  function tryLogin() {
+    const id = document.getElementById("login-user").value;
+    const user = db.users.find(u => u.id === id);
+    if (!user || user.pin !== pinBuf) {
+      pinBuf = "";
+      const dots = document.getElementById("pin-dots");
+      dots.classList.remove("masked");
+      dots.textContent = "Wrong PIN";
+      return;
+    }
+    session = { id: user.id, name: user.name, role: user.role };
+    pinBuf = "";
+    billDraft = emptyDraft();
+    view = "bill";
+    showApp();
+  }
+
+  function showApp() {
+    document.getElementById("login-screen").classList.add("hidden");
+    document.getElementById("app-screen").classList.remove("hidden");
+    paintHeader();
+    renderView();
+  }
+
+  function paintHeader() {
+    document.getElementById("shop-name").textContent = db.settings.companyName;
+    document.getElementById("shop-sub").textContent = db.settings.subtitle || "";
+    document.getElementById("shop-phones").textContent = (db.settings.phones || []).filter(Boolean).join("  •  ");
+    document.getElementById("who").textContent = session.name + " · " + session.role;
+    const nav = document.getElementById("nav");
+    const items = [
+      ["bill", "New Bill"],
+      ["history", "History"]
+    ];
+    if (session.role === "admin") {
+      items.push(["trash", "Trash"], ["catalog", "Catalog"], ["staff", "Staff"], ["settings", "Settings"]);
+    }
+    nav.innerHTML = items.map(([id, label]) =>
+      `<button data-view="${id}" class="${view === id ? "active" : ""}">${label}</button>`
+    ).join("");
+    nav.querySelectorAll("button").forEach(b => b.onclick = () => { view = b.dataset.view; renderView(); paintHeader(); });
+  }
+
+  document.getElementById("btn-logout").onclick = () => { session = null; renderLogin(); };
+
+  function renderView() {
+    const root = document.getElementById("view");
+    const foot = document.getElementById("bill-footer");
+    foot.classList.add("hidden");
+    foot.innerHTML = "";
+    if (view === "bill") renderBill(root, foot);
+    else if (view === "history") renderHistory(root, false);
+    else if (view === "trash") renderHistory(root, true);
+    else if (view === "catalog") renderCatalog(root);
+    else if (view === "staff") renderStaff(root);
+    else if (view === "settings") renderSettings(root);
+  }
+
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function renderBill(root, foot) {
+    const q = (billDraft.search || "").trim().toLowerCase();
+    const cats = db.categories.map(c => c.name);
+    root.innerHTML = `
+      <div class="card">
+        <div class="row">
+          <div class="field grow"><label>Customer name</label><input id="c-name" value="${esc(billDraft.customerName)}" /></div>
+          <div class="field"><label>Phone</label><input id="c-phone" value="${esc(billDraft.phone)}" /></div>
+          <div class="field"><label>Bill date</label><input id="c-date" type="date" value="${esc(billDraft.date)}" /></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <div class="field grow"><label>Address</label><input id="c-addr" value="${esc(billDraft.address)}" /></div>
+          <div class="field"><label>Discount %</label><input id="c-disc" type="number" min="0" max="100" step="0.5" value="${esc(billDraft.discountPct)}" /></div>
+        </div>
+        <p class="muted" style="margin:8px 0 0;font-size:.8rem">Discount applies to all items except no-discount categories (Gift Boxes) and ad-hoc lines flagged as no-discount.</p>
+      </div>
+      <input class="search" id="p-search" placeholder="Search by name or Sl.No…" value="${esc(billDraft.search || "")}" />
+      <div id="cat-list"></div>
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin:0 0 8px">Other Products</h3>
+        <p class="muted" style="margin:0 0 8px;font-size:.8rem">Items not in the catalog. Discount still applies unless you tick No discount.</p>
+        <div id="others"></div>
+        <button class="btn ghost small" id="add-other">+ Add other item</button>
+      </div>
+    `;
+    bindCustomer();
+    document.getElementById("p-search").oninput = e => { billDraft.search = e.target.value; renderView(); };
+    const list = document.getElementById("cat-list");
+    cats.forEach(cat => {
+      const prods = db.products
+        .filter(p => p.category === cat && (!q || p.name.toLowerCase().includes(q) || String(p.sno || "").includes(q)))
+        .sort((a, b) => (Number(a.sno) || 0) - (Number(b.sno) || 0));
+      if (!prods.length && q) return;
+      const open = catOpen[cat] !== false;
+      const wrap = document.createElement("div");
+      wrap.className = "cat";
+      wrap.innerHTML = `<button class="cat-h">${esc(cat)} ${catNoDisc(cat) ? '<span class="tag">No discount</span>' : ""} <span>${open ? "▾" : "▸"}</span></button>`;
+      const body = document.createElement("div");
+      if (!open) body.classList.add("hidden");
+      prods.forEach(p => body.appendChild(prodRow(p)));
+      wrap.querySelector(".cat-h").onclick = () => { catOpen[cat] = !open; renderView(); };
+      wrap.appendChild(body);
+      list.appendChild(wrap);
+    });
+    renderOthers();
+    document.getElementById("add-other").onclick = () => {
+      billDraft.others.push({ name: "", price: 0, qty: 1, unit: "Nos", noDiscount: false });
+      renderView();
+    };
+    const t = currentTotals();
+    foot.classList.remove("hidden");
+    foot.innerHTML = `
+      <div class="totals">
+        <div>Subtotal<br><b>${money(t.subtotal)}</b></div>
+        <div>Discount (${t.pct}%)<br><b>${money(t.discountAmt)}</b></div>
+        <div>No-discount amount<br><b>${money(t.noDiscAmt)}</b></div>
+        <div>Payable total<br><strong>${money(t.payable)}</strong></div>
+      </div>
+      <div class="actions-bar">
+        <button class="btn ok" id="save-bill">Save Bill</button>
+        <button class="btn gold" id="print-bill">Print Bill</button>
+        <button class="btn" id="pdf-bill">Download PDF</button>
+        <button class="btn ghost" id="share-bill">Share PDF</button>
+        <button class="btn ghost" id="clear-bill">Clear</button>
+      </div>
+    `;
+    document.getElementById("save-bill").onclick = saveBill;
+    document.getElementById("print-bill").onclick = () => printBill(previewBillObject());
+    document.getElementById("pdf-bill").onclick = () => downloadPdf(previewBillObject());
+    document.getElementById("share-bill").onclick = () => sharePdf(previewBillObject());
+    document.getElementById("clear-bill").onclick = () => {
+      if (confirm("Clear the current bill?")) { billDraft = emptyDraft(); renderView(); }
+    };
+  }
+
+  function bindCustomer() {
+    const map = [["c-name","customerName"],["c-phone","phone"],["c-addr","address"],["c-date","date"],["c-disc","discountPct"]];
+    map.forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      el.oninput = () => {
+        billDraft[key] = key === "discountPct" ? Math.min(100, Math.max(0, Number(el.value || 0))) : el.value;
+        if (key === "discountPct") refreshTotalsOnly();
+      };
+    });
+  }
+
+  function prodRow(p) {
+    const row = document.createElement("div");
+    row.className = "prod";
+    const q = Number(billDraft.qtys[p.id] || 0);
+    row.innerHTML = `
+      <div class="sno">${p.sno === 0 || p.sno ? esc(p.sno) : "—"}</div>
+      <div class="info"><div class="name">${esc(p.name)}</div><div class="meta">Sl.No ${esc(p.sno ?? "—")} · ${esc(p.unit)} · ${money(p.price)}</div></div>
+      <div class="qty">
+        <button type="button" data-d="-1">−</button>
+        <input type="number" min="0" step="1" value="${q}" />
+        <button type="button" data-d="1">+</button>
+      </div>
+      <div class="amt">${q ? money(q * p.price) : ""}</div>
+    `;
+    const inp = row.querySelector(".qty input");
+    const setQ = (n) => {
+      n = Math.max(0, Number(n) || 0);
+      if (n) billDraft.qtys[p.id] = n; else delete billDraft.qtys[p.id];
+      inp.value = n;
+      row.querySelector(".amt").textContent = n ? money(n * p.price) : "";
+      refreshTotalsOnly();
+    };
+    inp.oninput = () => setQ(inp.value);
+    row.querySelectorAll("button").forEach(b => b.onclick = () => setQ(Number(inp.value || 0) + Number(b.dataset.d)));
+    return row;
+  }
+
+  function renderOthers() {
+    const box = document.getElementById("others");
+    box.innerHTML = "";
+    billDraft.others.forEach((o, i) => {
+      const d = document.createElement("div");
+      d.className = "row";
+      d.style.marginBottom = "8px";
+      d.innerHTML = `
+        <div class="field grow"><label>Name</label><input data-k="name" value="${esc(o.name)}" /></div>
+        <div class="field"><label>Price</label><input data-k="price" type="number" min="0" step="0.01" value="${esc(o.price)}" /></div>
+        <div class="field"><label>Qty</label><input data-k="qty" type="number" min="0" step="1" value="${esc(o.qty)}" /></div>
+        <div class="field"><label>Unit</label><input data-k="unit" value="${esc(o.unit || "Nos")}" /></div>
+        <div class="field" style="max-width:120px"><label>No discount</label><input data-k="noDiscount" type="checkbox" ${o.noDiscount ? "checked" : ""} /></div>
+        <div class="field" style="max-width:80px"><label>&nbsp;</label><button class="btn red small" type="button">X</button></div>
+      `;
+      d.querySelectorAll("input").forEach(inp => {
+        inp.oninput = () => {
+          if (inp.type === "checkbox") o.noDiscount = inp.checked;
+          else if (inp.dataset.k === "price" || inp.dataset.k === "qty") o[inp.dataset.k] = Number(inp.value || 0);
+          else o[inp.dataset.k] = inp.value;
+          refreshTotalsOnly();
+        };
+      });
+      d.querySelector("button").onclick = () => { billDraft.others.splice(i, 1); renderView(); };
+      box.appendChild(d);
+    });
+  }
+
+  function refreshTotalsOnly() {
+    const foot = document.getElementById("bill-footer");
+    if (!foot || foot.classList.contains("hidden")) return;
+    const t = currentTotals();
+    const nums = foot.querySelectorAll(".totals b, .totals strong");
+    if (nums.length >= 4) {
+      nums[0].textContent = money(t.subtotal);
+      nums[1].textContent = money(t.discountAmt);
+      nums[2].textContent = money(t.noDiscAmt);
+      nums[3].textContent = money(t.payable);
+    }
+    const discLabel = foot.querySelector(".totals div:nth-child(2)");
+    if (discLabel) discLabel.innerHTML = `Discount (${t.pct}%)<br><b>${money(t.discountAmt)}</b>`;
+  }
+
+  function previewBillObject() {
+    const items = draftItems();
+    const t = totalsFromItems(items, billDraft.discountPct);
+    return {
+      serial: "DRAFT-" + String(db.nextSerial).padStart(4, "0"),
+      customerName: billDraft.customerName,
+      phone: billDraft.phone,
+      address: billDraft.address,
+      date: billDraft.date,
+      discountPct: t.pct,
+      items, ...t,
+      staffId: session.id,
+      staffName: session.name
+    };
+  }
+
+  function saveBill() {
+    const items = draftItems();
+    if (!items.length) return toast("Add at least one item");
+    const t = totalsFromItems(items, billDraft.discountPct);
+    const serialNum = db.nextSerial++;
+    const bill = {
+      id: uid(),
+      serial: "VAV-" + String(serialNum).padStart(4, "0"),
+      serialNum,
+      customerName: billDraft.customerName || "Walk-in",
+      phone: billDraft.phone,
+      address: billDraft.address,
+      date: billDraft.date,
+      discountPct: t.pct,
+      items, ...t,
+      staffId: session.id,
+      staffName: session.name,
+      createdAt: Date.now()
+    };
+    db.bills.unshift(bill);
+    save();
+    toast("Bill " + bill.serial + " saved");
+  }
+
+  function visibleBills(fromTrash) {
+    const list = fromTrash ? db.trash : db.bills;
+    if (session.role === "admin") return list;
+    return list.filter(b => b.staffId === session.id);
+  }
+
+  function renderHistory(root, trashMode) {
+    if (trashMode && session.role !== "admin") {
+      root.innerHTML = "<div class='card'>Only admin can open Trash.</div>";
+      return;
+    }
+    const all = visibleBills(trashMode);
+    const staffOpts = [];
+    const seen = new Set();
+    all.forEach(b => {
+      const id = b.staffId || b.staffName || "unknown";
+      if (seen.has(id)) return;
+      seen.add(id);
+      staffOpts.push({ id, name: b.staffName || "Unknown" });
+    });
+    db.users.forEach(u => {
+      if (seen.has(u.id)) return;
+      seen.add(u.id);
+      staffOpts.push({ id: u.id, name: u.name });
+    });
+    const list = session.role === "admin" && historyStaffFilter !== "all"
+      ? all.filter(b => (b.staffId || b.staffName) === historyStaffFilter)
+      : all;
+    const staffFilterHtml = session.role === "admin" ? `
+      <div class="row" style="margin-bottom:12px;align-items:flex-end">
+        <div class="field" style="max-width:280px">
+          <label>View bills by staff</label>
+          <select id="hist-staff">
+            <option value="all">All staff</option>
+            ${staffOpts.map(s => `<option value="${esc(s.id)}" ${historyStaffFilter === s.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}
+          </select>
+        </div>
+      </div>` : "";
+    root.innerHTML = `
+      <div class="card">
+        <h3 style="margin:0 0 10px">${trashMode ? "Trash" : "Bill history"}</h3>
+        ${staffFilterHtml}
+        <table>
+          <thead><tr><th>Serial</th><th>Customer</th><th>Date</th><th>Total</th>${session.role === "admin" ? "<th>Staff</th>" : ""}<th></th></tr></thead>
+          <tbody>
+            ${list.length ? list.map(b => `
+              <tr class="clickable" data-id="${b.id}">
+                <td>${esc(b.serial)}</td>
+                <td>${esc(b.customerName)}</td>
+                <td>${esc(b.date)}</td>
+                <td>${money(b.payable)}</td>
+                ${session.role === "admin" ? `<td>${esc(b.staffName || "")}</td>` : ""}
+                <td>${trashMode
+                  ? `<button class="btn small ghost" data-a="restore">Restore</button> <button class="btn small red" data-a="gone">Delete forever</button>`
+                  : (session.role === "admin" ? `<button class="btn small red" data-a="del">Delete</button>` : "")}
+                </td>
+              </tr>`).join("") : `<tr><td colspan="6" class="muted">No bills</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    `;
+    const staffSel = document.getElementById("hist-staff");
+    if (staffSel) staffSel.onchange = () => { historyStaffFilter = staffSel.value; renderView(); };
+    root.querySelectorAll("tr.clickable").forEach(tr => {
+      tr.onclick = (e) => {
+        if (e.target.closest("button")) return;
+        const bill = list.find(b => b.id === tr.dataset.id);
+        if (bill) openBillModal(bill);
+      };
+    });
+    root.querySelectorAll("button[data-a]").forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const id = btn.closest("tr").dataset.id;
+        if (btn.dataset.a === "del") {
+          if (!confirm("Move this bill to Trash?")) return;
+          const i = db.bills.findIndex(b => b.id === id);
+          if (i >= 0) { db.trash.unshift(db.bills.splice(i, 1)[0]); save(); renderView(); toast("Moved to Trash"); }
+        } else if (btn.dataset.a === "restore") {
+          const i = db.trash.findIndex(b => b.id === id);
+          if (i >= 0) { db.bills.unshift(db.trash.splice(i, 1)[0]); save(); renderView(); toast("Bill restored"); }
+        } else if (btn.dataset.a === "gone") {
+          if (!confirm("Permanently delete this bill? This cannot be undone.")) return;
+          db.trash = db.trash.filter(b => b.id !== id);
+          save(); renderView(); toast("Bill permanently deleted");
+        }
+      };
+    });
+  }
+
+  function openBillModal(bill) {
+    const m = document.getElementById("modal");
+    m.classList.remove("hidden");
+    m.innerHTML = `<div class="modal">
+      ${invoiceHTML(bill)}
+      <div class="toolbar">
+        <button class="btn gold" id="m-print">Print</button>
+        <button class="btn" id="m-pdf">Download PDF</button>
+        <button class="btn ghost" id="m-share">Share PDF</button>
+        <button class="btn ghost" id="m-close">Close</button>
+      </div>
+    </div>`;
+    m.onclick = (e) => { if (e.target === m) m.classList.add("hidden"); };
+    document.getElementById("m-close").onclick = () => m.classList.add("hidden");
+    document.getElementById("m-print").onclick = () => printBill(bill);
+    document.getElementById("m-pdf").onclick = () => downloadPdf(bill);
+    document.getElementById("m-share").onclick = () => sharePdf(bill);
+  }
+
+  function invoiceHTML(bill) {
+    const phones = (db.settings.phones || []).filter(Boolean).join(" · ");
+    return `<div class="invoice">
+      <div class="invoice-head">
+        <div>
+          <h2>${esc(db.settings.companyName)}</h2>
+          <div>${esc(db.settings.subtitle || "")}</div>
+          <div>${esc(db.settings.address || "")}</div>
+          <div>${esc(phones)}</div>
+        </div>
+        <div>
+          <div><b>Bill No:</b> ${esc(bill.serial)}</div>
+          <div><b>Date:</b> ${esc(bill.date)}</div>
+          <div><b>Billed by:</b> ${esc(bill.staffName || "")}</div>
+        </div>
+      </div>
+      <p><b>Customer:</b> ${esc(bill.customerName || "Walk-in")}<br>
+      ${bill.phone ? "<b>Phone:</b> " + esc(bill.phone) + "<br>" : ""}
+      ${bill.address ? "<b>Address:</b> " + esc(bill.address) : ""}</p>
+      <table>
+        <thead><tr><th>Sl.No</th><th>Item</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody>
+          ${(bill.items || []).map((it, i) => `<tr>
+            <td>${esc(it.sno || (i + 1))}</td><td>${esc(it.name)}${it.noDiscount ? ' <span class="badge">ND</span>' : ""}</td>
+            <td>${it.qty}</td><td>${esc(it.unit)}</td><td>${money(it.price)}</td><td>${money(it.price * it.qty)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+      <p style="text-align:right">
+        Subtotal: <b>${money(bill.subtotal)}</b><br>
+        Discount (${bill.discountPct || 0}%): <b>${money(bill.discountAmt)}</b><br>
+        No-discount amount: <b>${money(bill.noDiscAmt)}</b><br>
+        <span style="font-size:1.15rem">Payable: <b>${money(bill.payable)}</b></span>
+      </p>
+      <p class="muted" style="font-size:.8rem">ND = no discount. Thank you. Light fireworks outdoors, follow local safety rules.</p>
+    </div>`;
+  }
+
+  function printBill(bill) {
+    document.getElementById("print-root").innerHTML = invoiceHTML(bill);
+    window.print();
+  }
+
+  function renderCatalog(root) {
+    if (session.role !== "admin") return root.innerHTML = "<div class='card'>Admin only.</div>";
+    root.innerHTML = `
+      <div class="card">
+        <h3 style="margin-top:0">Categories</h3>
+        <p class="muted" style="font-size:.85rem">Reorder display order. Tick “No discount” for gift/combo packs.</p>
+        <div id="cat-admin"></div>
+        <div class="row" style="margin-top:8px">
+          <div class="field grow"><label>New category</label><input id="new-cat" /></div>
+          <div class="field" style="max-width:140px"><label>&nbsp;</label><button class="btn" id="add-cat">Add category</button></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin-top:0">Products</h3>
+        <div class="row">
+          <div class="field" style="max-width:110px"><label>Sl.No</label><input id="np-sno" type="number" min="1" step="1" /></div>
+          <div class="field grow"><label>Name</label><input id="np-name" /></div>
+          <div class="field"><label>Price</label><input id="np-price" type="number" min="0" step="0.01" /></div>
+          <div class="field"><label>Unit</label><input id="np-unit" value="Box" /></div>
+          <div class="field"><label>Category</label><select id="np-cat"></select></div>
+        </div>
+        <div class="toolbar"><button class="btn" id="np-add">Add product</button></div>
+        <input class="search" id="cp-search" placeholder="Filter products…" />
+        <div style="overflow:auto"><table><thead><tr><th>Sl.No</th><th>Name</th><th>Price</th><th>Unit</th><th>Category</th><th></th></tr></thead><tbody id="p-body"></tbody></table></div>
+      </div>
+    `;
+    const catSel = document.getElementById("np-cat");
+    catSel.innerHTML = db.categories.map(c => `<option>${esc(c.name)}</option>`).join("");
+    document.getElementById("add-cat").onclick = () => {
+      const name = document.getElementById("new-cat").value.trim();
+      if (!name) return;
+      if (db.categories.some(c => c.name === name)) return toast("Category exists");
+      db.categories.push({ name, noDiscount: false });
+      save(); renderView();
+    };
+    drawCatAdmin();
+    const drawProds = () => {
+      const f = (document.getElementById("cp-search").value || "").toLowerCase();
+      document.getElementById("p-body").innerHTML = db.products
+        .filter(p => !f || p.name.toLowerCase().includes(f) || p.category.toLowerCase().includes(f) || String(p.sno || "").includes(f))
+        .slice()
+        .sort((a, b) => (Number(a.sno) || 0) - (Number(b.sno) || 0))
+        .map(p => `<tr data-id="${p.id}">
+          <td><input data-k="sno" type="number" min="1" step="1" value="${esc(p.sno ?? "")}" style="width:72px" /></td>
+          <td><input data-k="name" value="${esc(p.name)}" /></td>
+          <td><input data-k="price" type="number" step="0.01" value="${p.price}" style="width:90px" /></td>
+          <td><input data-k="unit" value="${esc(p.unit)}" style="width:70px" /></td>
+          <td><select data-k="category">${db.categories.map(c => `<option ${c.name === p.category ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></td>
+          <td><button class="btn small red" data-a="rm">Delete</button></td>
+        </tr>`).join("");
+      document.querySelectorAll("#p-body tr").forEach(tr => {
+        const p = productById(tr.dataset.id);
+        tr.querySelectorAll("input,select").forEach(inp => {
+          const apply = () => {
+            if (inp.dataset.k === "price" || inp.dataset.k === "sno") p[inp.dataset.k] = Number(inp.value || 0);
+            else p[inp.dataset.k] = inp.value;
+            save();
+          };
+          inp.addEventListener("input", apply);
+          inp.addEventListener("change", apply);
+        });
+        tr.querySelector("[data-a=rm]").onclick = () => {
+          if (!confirm("Delete this product?")) return;
+          db.products = db.products.filter(x => x.id !== p.id);
+          save(); drawProds();
+        };
+      });
+    };
+    document.getElementById("cp-search").oninput = drawProds;
+    document.getElementById("np-add").onclick = () => {
+      const name = document.getElementById("np-name").value.trim();
+      if (!name) return toast("Enter a product name");
+      const nextSno = Math.max(0, ...db.products.map(p => Number(p.sno) || 0)) + 1;
+      const sno = Number(document.getElementById("np-sno").value || nextSno);
+      db.products.push({
+        id: uid(), sno, name,
+        price: Number(document.getElementById("np-price").value || 0),
+        unit: document.getElementById("np-unit").value || "Box",
+        category: document.getElementById("np-cat").value
+      });
+      save(); document.getElementById("np-name").value = "";
+      document.getElementById("np-sno").value = sno + 1;
+      drawProds(); toast("Product added");
+    };
+    drawProds();
+    document.getElementById("np-sno").value = Math.max(0, ...db.products.map(p => Number(p.sno) || 0)) + 1;
+  }
+
+  function drawCatAdmin() {
+    const box = document.getElementById("cat-admin");
+    box.innerHTML = db.categories.map((c, i) => `
+      <div class="row" data-i="${i}" style="align-items:center;margin-bottom:6px">
+        <button class="btn small ghost" data-m="-1">↑</button>
+        <button class="btn small ghost" data-m="1">↓</button>
+        <input data-k="name" value="${esc(c.name)}" style="flex:1" />
+        <label style="display:flex;gap:6px;align-items:center;font-size:.85rem"><input type="checkbox" data-k="nd" ${c.noDiscount ? "checked" : ""}/> No discount</label>
+        <button class="btn small red" data-a="rm">Remove</button>
+      </div>
+    `).join("");
+    box.querySelectorAll(".row").forEach(row => {
+      const i = Number(row.dataset.i);
+      row.querySelector("[data-m='-1']").onclick = () => moveCat(i, -1);
+      row.querySelector("[data-m='1']").onclick = () => moveCat(i, 1);
+      row.querySelector("[data-k=name]").onchange = (e) => {
+        const old = db.categories[i].name;
+        const neu = e.target.value.trim();
+        if (!neu) return;
+        db.products.forEach(p => { if (p.category === old) p.category = neu; });
+        db.categories[i].name = neu;
+        save();
+      };
+      row.querySelector("[data-k=nd]").onchange = (e) => { db.categories[i].noDiscount = e.target.checked; save(); };
+      row.querySelector("[data-a=rm]").onclick = () => {
+        if (db.products.some(p => p.category === db.categories[i].name)) {
+          return toast("Move or delete products in this category first");
+        }
+        if (!confirm("Remove category?")) return;
+        db.categories.splice(i, 1); save(); renderView();
+      };
+    });
+  }
+  function moveCat(i, dir) {
+    const j = i + dir;
+    if (j < 0 || j >= db.categories.length) return;
+    const a = db.categories[i];
+    db.categories[i] = db.categories[j];
+    db.categories[j] = a;
+    save(); renderView();
+  }
+
+  function renderStaff(root) {
+    if (session.role !== "admin") return root.innerHTML = "<div class='card'>Admin only.</div>";
+    const me = db.users.find(u => u.id === session.id);
+    root.innerHTML = `
+      <div class="card">
+        <h3 style="margin-top:0">Your PIN</h3>
+        <div class="row">
+          <div class="field"><label>New PIN</label><input id="my-pin" type="password" inputmode="numeric" /></div>
+          <div class="field"><label>&nbsp;</label><button class="btn" id="save-mypin">Change my PIN</button></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin-top:0">Staff accounts</h3>
+        <div class="row">
+          <div class="field grow"><label>Name</label><input id="st-name" /></div>
+          <div class="field"><label>PIN</label><input id="st-pin" inputmode="numeric" /></div>
+          <div class="field" style="max-width:140px"><label>&nbsp;</label><button class="btn" id="st-add">Add staff</button></div>
+        </div>
+        <table style="margin-top:12px">
+          <thead><tr><th>Name</th><th>Role</th><th>PIN</th><th></th></tr></thead>
+          <tbody>
+            ${db.users.map(u => `<tr data-id="${u.id}">
+              <td><input data-k="name" value="${esc(u.name)}" ${u.id === "u-admin" ? "" : ""} /></td>
+              <td>${esc(u.role)}</td>
+              <td><input data-k="pin" value="${esc(u.pin)}" style="width:100px" /></td>
+              <td>${u.role === "admin" ? "" : `<button class="btn small red" data-a="rm">Remove</button>`}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+    document.getElementById("save-mypin").onclick = () => {
+      const pin = document.getElementById("my-pin").value.trim();
+      if (pin.length < 4) return toast("PIN must be at least 4 digits");
+      me.pin = pin; save(); toast("Your PIN was updated");
+    };
+    document.getElementById("st-add").onclick = () => {
+      const name = document.getElementById("st-name").value.trim();
+      const pin = document.getElementById("st-pin").value.trim();
+      if (!name || pin.length < 4) return toast("Name and 4+ digit PIN required");
+      db.users.push({ id: uid(), name, role: "staff", pin });
+      save(); renderView(); toast("Staff added");
+    };
+    root.querySelectorAll("tbody tr").forEach(tr => {
+      const u = db.users.find(x => x.id === tr.dataset.id);
+      tr.querySelectorAll("input").forEach(inp => {
+        inp.onchange = () => { u[inp.dataset.k] = inp.value.trim(); save(); };
+      });
+      const rm = tr.querySelector("[data-a=rm]");
+      if (rm) rm.onclick = () => {
+        if (!confirm("Remove this staff account?")) return;
+        db.users = db.users.filter(x => x.id !== u.id);
+        save(); renderView();
+      };
+    });
+  }
+
+  function renderSettings(root) {
+    if (session.role !== "admin") return root.innerHTML = "<div class='card'>Admin only.</div>";
+    const s = db.settings;
+    root.innerHTML = `
+      <div class="card">
+        <h3 style="margin-top:0">Shop settings</h3>
+        <div class="field"><label>Company name</label><input id="s-name" value="${esc(s.companyName)}" /></div>
+        <div class="field" style="margin-top:8px"><label>Subtitle</label><input id="s-sub" value="${esc(s.subtitle)}" /></div>
+        <div class="field" style="margin-top:8px"><label>Address (optional)</label><input id="s-addr" value="${esc(s.address || "")}" /></div>
+        <div class="field" style="margin-top:8px"><label>Phone numbers (one per line)</label><textarea id="s-phones">${esc((s.phones || []).join("\n"))}</textarea></div>
+        <div class="field" style="margin-top:8px"><label>Admin PIN recovery code</label><input id="s-recover" value="${esc(s.recoveryCode || "VELU2026")}" /></div>
+        <div class="toolbar"><button class="btn gold" id="s-save">Save settings</button></div>
+        <p class="muted" style="font-size:.85rem">Write down the recovery code. If you forget the admin PIN, tap “Forgot admin PIN?” on the login screen and enter this code to set a new PIN. Bills are not deleted. This app stores everything in this browser’s local storage — another phone or browser starts empty.</p>
+      </div>
+    `;
+    document.getElementById("s-save").onclick = () => {
+      db.settings.companyName = document.getElementById("s-name").value.trim() || "Shop";
+      db.settings.subtitle = document.getElementById("s-sub").value.trim();
+      db.settings.address = document.getElementById("s-addr").value.trim();
+      db.settings.phones = document.getElementById("s-phones").value.split(/\n+/).map(x => x.trim()).filter(Boolean);
+      db.settings.recoveryCode = document.getElementById("s-recover").value.trim() || "VELU2026";
+      save(); paintHeader(); toast("Shop settings saved");
+    };
+  }
+
+  function pdfEscape(t) {
+    return String(t ?? "").replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)").replace(/[^\x20-\x7E]/g, ch => {
+      const map = { "₹": "Rs ", "–": "-", "—": "-", "“": '"', "”": '"', "’": "'" };
+      return map[ch] || " ";
+    });
+  }
+
+  function wrapText(text, max) {
+    const words = String(text || "").split(/\s+/);
+    const lines = [];
+    let cur = "";
+    for (const w of words) {
+      if ((cur + " " + w).trim().length > max) { if (cur) lines.push(cur); cur = w; }
+      else cur = (cur + " " + w).trim();
+    }
+    if (cur) lines.push(cur);
+    return lines.length ? lines : [""];
+  }
+
+  function buildPdf(bill) {
+    const pages = [];
+    let content = [];
+    let y = 800;
+    const pageH = 842, pageW = 595;
+    const flush = () => { pages.push(content.join("\n")); content = []; y = 800; };
+    const text = (str, x, yy, size = 10) => {
+      content.push(`BT /F1 ${size} Tf ${x} ${yy} Td (${pdfEscape(str)}) Tj ET`);
+    };
+    const line = (x1, y1, x2, y2) => content.push(`${x1} ${y1} m ${x2} ${y2} l S`);
+    const ensure = (need) => { if (y < need) flush(); };
+
+    const s = db.settings;
+    text(s.companyName, 50, y, 16); y -= 16;
+    if (s.subtitle) { text(s.subtitle, 50, y, 10); y -= 13; }
+    if (s.address) { text(s.address, 50, y, 9); y -= 12; }
+    text((s.phones || []).join("  |  "), 50, y, 9); y -= 18;
+    line(50, y, 545, y); y -= 18;
+    text("Bill No: " + bill.serial, 50, y, 11);
+    text("Date: " + bill.date, 360, y, 11); y -= 14;
+    text("Billed by: " + (bill.staffName || ""), 50, y, 10); y -= 16;
+    text("Customer: " + (bill.customerName || "Walk-in"), 50, y, 10); y -= 13;
+    if (bill.phone) { text("Phone: " + bill.phone, 50, y, 10); y -= 13; }
+    if (bill.address) { text("Address: " + bill.address, 50, y, 10); y -= 16; }
+    y -= 4;
+    text("Sl", 50, y, 9);
+    text("Item", 80, y, 9);
+    text("Qty", 360, y, 9);
+    text("Rate", 410, y, 9);
+    text("Amount", 480, y, 9);
+    y -= 8; line(50, y, 545, y); y -= 14;
+
+    (bill.items || []).forEach((it, i) => {
+      const names = wrapText(it.name + (it.noDiscount ? " [ND]" : ""), 46);
+      ensure(40 + names.length * 12);
+      names.forEach((ln, li) => {
+        if (li === 0) {
+          text(String(it.sno || (i + 1)), 50, y, 9);
+          text(ln, 80, y, 9);
+          text(String(it.qty), 360, y, 9);
+          text((Number(it.price).toFixed(2)), 410, y, 9);
+          text((it.price * it.qty).toFixed(2), 480, y, 9);
+        } else text(ln, 80, y, 9);
+        y -= 12;
+      });
+    });
+    y -= 8; ensure(90); line(50, y, 545, y); y -= 16;
+    text("Subtotal: " + Number(bill.subtotal).toFixed(2), 360, y, 10); y -= 13;
+    text("Discount (" + (bill.discountPct || 0) + "%): " + Number(bill.discountAmt).toFixed(2), 360, y, 10); y -= 13;
+    text("No-discount: " + Number(bill.noDiscAmt).toFixed(2), 360, y, 10); y -= 15;
+    text("PAYABLE: " + Number(bill.payable).toFixed(2), 360, y, 13); y -= 24;
+    text("ND = no discount. Thank you for your purchase.", 50, y, 8);
+    flush();
+
+    const objs = [];
+    objs.push("<< /Type /Catalog /Pages 2 0 R >>");
+    const kids = pages.map((_, i) => (3 + i * 2) + " 0 R").join(" ");
+    objs.push(`<< /Type /Pages /Count ${pages.length} /Kids [${kids}] >>`);
+    pages.forEach((stream) => {
+      objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1  ${3 + pages.length * 2} 0 R >> >> /Contents ${objs.length + 2} 0 R >>`);
+      objs.push(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    });
+    objs.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+
+    let pdf = "%PDF-1.4\n";
+    const xref = [0];
+    objs.forEach((body, i) => {
+      xref.push(pdf.length);
+      pdf += `${i + 1} 0 obj\n${body}\nendobj\n`;
+    });
+    const start = pdf.length;
+    pdf += `xref\n0 ${objs.length + 1}\n`;
+    pdf += "0000000000 65535 f \n";
+    xref.slice(1).forEach(off => { pdf += String(off).padStart(10, "0") + " 00000 n \n"; });
+    pdf += `trailer << /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
+    return new Blob([pdf], { type: "application/pdf" });
+  }
+
+  function pdfName(bill) {
+    return (db.settings.companyName.replace(/\s+/g, "-") + "-" + (bill.serial || "bill") + ".pdf").replace(/[^\w.\-]+/g, "");
+  }
+
+  function downloadPdf(bill) {
+    const blob = buildPdf(bill);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = pdfName(bill);
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+    toast("PDF downloaded");
+  }
+
+  async function sharePdf(bill) {
+    const blob = buildPdf(bill);
+    const file = new File([blob], pdfName(bill), { type: "application/pdf" });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: db.settings.companyName, text: "Bill " + bill.serial });
+        toast("Share sheet opened");
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+    }
+    downloadPdf(bill);
+    toast("Share not available — PDF downloaded instead");
+  }
+
+  renderLogin();
+  </script>
+</body>
+</html>
